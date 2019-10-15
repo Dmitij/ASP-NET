@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using WebStore.DAL;
 using WebStore.DomainNew.Entities;
 using WebStore.Infrastructure;
+using WebStore.Infrastructure.Implementations;
 using WebStore.Infrastructure.Intefaces;
 using WebStore.Infrastructure.Services;
 
@@ -36,6 +37,7 @@ namespace WebStore
             });
 
             services.AddScoped<IProductService, SqlProductService>();
+            services.AddScoped<IOrdersService, SqlOrdersService>();
             //services.AddTransient<IEmployeeService, EmployeeService>();
             services.AddScoped<IEmployeeService, EmployeeService>();
 
@@ -62,6 +64,9 @@ namespace WebStore
             {
                 o.Cookie.Expiration = TimeSpan.FromDays(100);
             });
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<ICartService, CookieCartService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -87,6 +92,10 @@ namespace WebStore
             app.UseMvc(routes =>
             {
                 // Добавляем обработчик маршрута по умолчанию
+                routes.MapRoute(
+                    name: "areas",
+                    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+                
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
